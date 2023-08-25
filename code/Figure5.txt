@@ -1,0 +1,108 @@
+rm(list = ls())  
+setwd("C:/Users/86139/Desktop/R")
+getwd()
+sur<- read.csv('cox.csv')
+names(sur)
+install.packages(c('survival','survminer'))
+library("survival")
+library("survminer")
+fit <- survfit(Surv(PFS1,status) ~ ILA,data = sur)
+
+KM <- ggsurvplot(
+  fit, ## survfit返回的对象
+  pval = TRUE, ##是否显示P值，TRUE可以换为自己想要表达的字符串
+  pval.method = TRUE, # 是否展示P值的检验方法
+  legend.title='ILA according to radiologists', # 自定义图例的标题
+  legend.labs=c('without ILA','equivocal ILA','with ILA'), # 自定义分组变量的名字
+  conf.int = F, ##是否展示曲线的置信区间
+  cont.int.style = 'step', ## 自定义置信区间的style
+  xlab = 'PFS in days', ## 自定义X轴的label
+  break.time.by = 200, ## X轴上的时间以多少步长而隔开(如果年为单位的话，一般设置为1就行了)
+  ggtheme = theme_classic(), # 设置主题(自定义ggplot2中的主题)
+  risk.table = T, ## 所有可用的value是TRUE, FALSE, 'absolute', 'percentage', 'nrisk_cumcensor', 'nrisk_cumevents' 
+  risk.table.y.text.col = T, ## risk table左侧是否用对应分层变量的颜色注释
+  risk.table.y.text = F, ## 是否展示分层变量的文本，如果不展示，则用颜色条进行展示
+  #surv.median.line = "hv", # 指出中位生存率
+  palette = c("#696969","#1F78B4","#E31A1C") ## 自定义曲线的颜色
+)
+KM
+
+fit2 <- survfit(Surv(PFS1,status) ~ ILAai,data = sur)
+KM2 <- ggsurvplot(
+  fit2, ## survfit返回的对象
+  pval = TRUE, ##是否显示P值，TRUE可以换为自己想要表达的字符串
+  pval.method = TRUE, # 是否展示P值的检验方法
+  legend.title='ILA according to AI evaluation', # 自定义图例的标题
+  legend.labs=c('without ILA','with ILA'), # 自定义分组变量的名字
+  conf.int = F, ##是否展示曲线的置信区间
+  cont.int.style = 'step', ## 自定义置信区间的style
+  xlab = 'PFS in days', ## 自定义X轴的label
+  break.time.by = 200, ## X轴上的时间以多少步长而隔开(如果年为单位的话，一般设置为1就行了)
+  ggtheme = theme_classic(), # 设置主题(自定义ggplot2中的主题)
+  risk.table = T, ## 所有可用的value是TRUE, FALSE, 'absolute', 'percentage', 'nrisk_cumcensor', 'nrisk_cumevents' 
+  risk.table.y.text.col = T, ## risk table左侧是否用对应分层变量的颜色注释
+  risk.table.y.text = F, ## 是否展示分层变量的文本，如果不展示，则用颜色条进行展示
+  #surv.median.line = "hv", # 指出中位生存率
+  palette = c("#1F78B4","#E31A1C") ## 自定义曲线的颜色
+)
+KM2
+
+fitg <- survfit(Surv(PFS1,status) ~ GGO.involved.more.than.one.lobe,data = sur)
+KMg <- ggsurvplot(
+  fitg, ## survfit返回的对象
+  pval = TRUE, ##是否显示P值，TRUE可以换为自己想要表达的字符串
+  pval.method = TRUE, # 是否展示P值的检验方法
+  legend.title='Lobes involved GGO', # 自定义图例的标题
+  legend.labs=c('≤1','>1'), # 自定义分组变量的名字
+  conf.int = F, ##是否展示曲线的置信区间
+  cont.int.style = 'step', ## 自定义置信区间的style
+  xlab = 'PFS in days', ## 自定义X轴的label
+  break.time.by = 200, ## X轴上的时间以多少步长而隔开(如果年为单位的话，一般设置为1就行了)
+  ggtheme = theme_classic(), # 设置主题(自定义ggplot2中的主题)
+  risk.table = T, ## 所有可用的value是TRUE, FALSE, 'absolute', 'percentage', 'nrisk_cumcensor', 'nrisk_cumevents' 
+  risk.table.y.text.col = T, ## risk table左侧是否用对应分层变量的颜色注释
+  risk.table.y.text = F, ## 是否展示分层变量的文本，如果不展示，则用颜色条进行展示
+  #surv.median.line = "hv", # 指出中位生存率
+  palette = c("#1F78B4","#E31A1C") ## 自定义曲线的颜色
+)
+KMg
+
+fitf <- survfit(Surv(PFS1,status) ~ Fibrosis.involved.more.than.one.lobe,data = sur)
+KMf <- ggsurvplot(
+  fitf, ## survfit返回的对象
+  pval = TRUE, ##是否显示P值，TRUE可以换为自己想要表达的字符串
+  pval.method = TRUE, # 是否展示P值的检验方法
+  legend.title='Lobes involved fibrosis', # 自定义图例的标题
+  legend.labs=c('≤1','>1'), # 自定义分组变量的名字
+  conf.int = F, ##是否展示曲线的置信区间
+  cont.int.style = 'step', ## 自定义置信区间的style
+  xlab = 'PFS in days', ## 自定义X轴的label
+  break.time.by = 200, ## X轴上的时间以多少步长而隔开(如果年为单位的话，一般设置为1就行了)
+  ggtheme = theme_classic(), # 设置主题(自定义ggplot2中的主题)
+  risk.table = T, ## 所有可用的value是TRUE, FALSE, 'absolute', 'percentage', 'nrisk_cumcensor', 'nrisk_cumevents' 
+  risk.table.y.text.col = T, ## risk table左侧是否用对应分层变量的颜色注释
+  risk.table.y.text = F, ## 是否展示分层变量的文本，如果不展示，则用颜色条进行展示
+  #surv.median.line = "hv", # 指出中位生存率
+  palette = c("#1F78B4","#E31A1C") ## 自定义曲线的颜色
+)
+KMf
+
+fitc <- survfit(Surv(PFS,status) ~ clobes2,data = sur)
+KMc <- ggsurvplot(
+  fitc, ## survfit返回的对象
+  pval = TRUE, ##是否显示P值，TRUE可以换为自己想要表达的字符串
+  pval.method = TRUE, # 是否展示P值的检验方法
+  legend.title='Lobes involved consolidation', # 自定义图例的标题
+  legend.labs=c('≤1','>1'), # 自定义分组变量的名字
+  conf.int = F, ##是否展示曲线的置信区间
+  cont.int.style = 'step', ## 自定义置信区间的style
+  xlab = 'PFS in days', ## 自定义X轴的label
+  break.time.by = 200, ## X轴上的时间以多少步长而隔开(如果年为单位的话，一般设置为1就行了)
+  ggtheme = theme_classic(), # 设置主题(自定义ggplot2中的主题)
+  risk.table = T, ## 所有可用的value是TRUE, FALSE, 'absolute', 'percentage', 'nrisk_cumcensor', 'nrisk_cumevents' 
+  risk.table.y.text.col = T, ## risk table左侧是否用对应分层变量的颜色注释
+  risk.table.y.text = F, ## 是否展示分层变量的文本，如果不展示，则用颜色条进行展示
+  #surv.median.line = "hv", # 指出中位生存率
+  palette = c("#1F78B4","#E31A1C") ## 自定义曲线的颜色
+)
+KMc

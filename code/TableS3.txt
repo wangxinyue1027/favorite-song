@@ -1,0 +1,71 @@
+rm(list = ls())  
+setwd("C:/Users/86139/Desktop/R")
+getwd()
+cc<- read.csv('.csv')
+
+library(survival)
+library(plyr)
+names(cc)
+str(cc)
+cc$status<-factor(cc$status)
+str(cc)
+summary(cc$status)
+
+y<- Surv(time = cc$PFS,event = cc$status==1)
+
+cox<- coxph(y~GGO.involved.more.than.one.lobe, data=cc);summary(cox)
+
+cox1<-summary(cox)  
+cox1$coefficients   
+cox1$conf.int       
+
+HR     <- round(cox1$coefficients[,2],3)     
+PValue <- round(cox1$coefficients[,5],4) 
+CI     <- paste0(round(cox1$conf.int[,3:4],3),collapse = '-') 
+
+Uni_cox <- data.frame("Characteristics" = "GGO involved more than one lobe",
+                      "Hazard Ratio" = HR,
+                      "CI95" = CI,
+                      "P Value" = PValue);Uni_cox
+
+Uni_cox<- function(x){ FML<- as.formula(paste0 ("y~",x))
+cox<- coxph(FML,data=cc)
+cox1<-summary(cox)
+HR <- round(cox1$coefficients[,2],3)    
+PValue <- round(cox1$coefficients[,5],4) 
+CI <- paste0(round(cox1$conf.int[,3:4],3),collapse = '-') 
+Uni_cox<- data.frame('Characteristics' = x,
+                     'Hazard Ratio' = HR,
+                     'P Value' = PValue,
+                     'CI95' = CI)
+                      return(Uni_cox)}
+
+names(cc)
+
+variable.names<- colnames(cc)[c(2:25)] 
+
+cox3 <- lapply(variable.names, Uni_cox)
+cox3 <- ldply(cox3,data.frame);cox3
+write.csv(cox3, file = "uni_cox3.csv")
+
+
+mul_cox<-coxph(Surv(PFS,status==1)~
+                 ICI.drug+GGO.involved.more.than.one.lobe+LYM,
+               data=cc
+);summary(mul_cox)
+
+cox<-summary(mul_cox) 
+cox$coefficients    
+cox$conf.int  
+
+mul_HR<- round(cox$coefficients[,2],3) 
+mul_PValue<- round(cox$coefficients[,5],4) 
+mul_CI1<-round(cox$conf.int[,3],3)
+mul_CI2<-round(cox$conf.int[,4],3)
+mul_CI95<-paste(mul_CI1,'-',mul_CI2)
+
+mul_cox1 <- data.frame("HR" =mul_HR,
+                       "CI95" =mul_CI95,
+                       "P"=mul_PValue);mul_cox1
+
+write.csv(mul_cox1,"Mul_Cox3.csv")

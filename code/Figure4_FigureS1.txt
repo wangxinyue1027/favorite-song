@@ -1,0 +1,169 @@
+rm(list = ls()) 
+getwd()
+setwd("C:/Users/86139/Desktop/R")
+aa<- read.csv('trainingset.csv')
+vali<- read.csv('validationset.csv')
+names(aa)
+names(vali)
+str(aa)
+summary(aa)
+library(corrplot)
+corr <- cor(as.matrix(aa))
+corrplot.mixed(corr)
+library(glmnet)
+library(caret) 
+X <- as.matrix(aa[6:48])
+Y <- as.matrix(aa[4])
+library(glmnet)
+myLasso <- glmnet(X, Y, alpha = 1, family = 'binomial', nlambda = 100) 
+print(myLasso)
+plot(myLasso, xvar = 'lambda', label = T)
+plot(myLasso, xvar = 'norm', label = T)
+plot(myLasso, xvar = 'dev', label = T)
+set.seed(20220917)
+cv.lasso <- cv.glmnet(X, Y, alpha = 1, nfolds = 10, family = 'binomial',type.measure = "mse")
+plot(cv.lasso)
+lasso.coef <- coef(myLasso, 0.03808) 
+print(cv.lasso)
+write.csv(as.matrix(lasso.coef),'LASSO.csv')
+lasso.coef
+
+lgrfit<-glm(CIP~ggo+Histology+Age+ALB, family=binomial(link = logit), data=aa)
+lgrfit234<-glm(CIP234~ggo+Histology+Age, family=binomial(link = logit), data=aa)
+lgrfit34<-glm(CIP34~Histology+ggo_right_bottom_lung, family=binomial(link = logit), data=aa)
+
+summary(lgrfit)
+summary(lgrfit234)
+summary(lgrfit34)
+
+exp(cbind(OR=coef(lgrfit234),confint(lgrfit234)))
+exp(cbind(OR=coef(lgrfit34),confint(lgrfit34))) 
+
+vali234<-glm(CIP234~ggo+Histology+Age, family=binomial(link = logit), data=vali)
+vali34<-glm(CIP34~Histology+ggo_right_bottom_lung, family=binomial(link = logit), data=vali)
+
+summary(vali234)
+summary(vali34)
+
+library(rms)
+
+fit234<-lrm(CIP234~ggo+Histology+Age, data=aa, x=T, y=T)
+fit34<-lrm(CIP34~Histology+ggo_right_bottom_lung, data=aa, x=T, y=T)
+fit234
+fit34
+plot(lgrfit234)
+plot(lgrfit34)
+
+install.packages('pROC')
+library(pROC)
+
+aa$CIP34<-as.factor(aa$CIP34)
+proc34<-roc(aa$CIP34,fitted(lgrfit34),plot=TRUE)
+plot(proc34,
+     print.auc=TRUE,  
+     print.thres=TRUE,
+     main="ROC for GGO",
+     col="#008600")
+
+proc234<-roc(aa$CIP234,fitted(lgrfit234),plot=TRUE)
+plot(proc234,
+     print.auc=TRUE,  
+     print.thres=TRUE,
+     main="ROC for GGO",
+     col="#008600")
+
+vali234<-roc(vali$CIP234,fitted(vali234),plot=TRUE)
+plot(vali234,
+     print.auc=TRUE,  
+     print.thres=TRUE,
+     main="ROC for GGO",
+     col="#008600")
+
+auc(proc234)
+ci(auc(proc234))
+
+proc34<-roc(vali$CIP34,fitted(vali34),plot=TRUE)
+plot(proc34,
+     print.auc=TRUE,  
+     print.thres=TRUE,
+     main="ROC for GGO",
+     col="#008600")
+
+auc(proc34)
+ci(auc(proc34))
+
+library(rms)
+
+dd234 <- datadist(aa)
+options(datadist='dd234')
+
+formula234 = as.formula(CIP234~Histology+Age+ggo)
+fit234<-lrm(formula234,data = aa, x=T,y=T)
+nom234<-nomogram(fit234,
+              fun=function(x)1/(1+exp(-x)),
+              lp=F,
+              fun.at = c(0.05, 0.1,0.3,0.5,0.7,0.9),
+              funlabel = 'Risk')
+plot(nom234)
+
+dd34 <- datadist(aa)
+options(datadist='dd34')
+
+formula34 = as.formula(CIP34~Histology+ggo_right_bottom_lung)
+fit34<-lrm(formula34,data = aa, x=T,y=T)
+
+nom34<-nomogram(fit34,
+                 fun=function(x)1/(1+exp(-x)),
+                 lp=F,
+                 fun.at = c(0.05, 0.1,0.3,0.5,0.7,0.9),
+                 funlabel = 'Risk')
+plot(nom34)
+
+cal234<-calibrate(fit234, method = 'boot', B=1000, data = aa)
+plot(cal234,
+     xlim=c(0,0.8),ylim=c(0,0.8),
+     xlab = "Predicted Probability",
+     ylab = "Observed Probability")
+
+cal34<-calibrate(fit34, method = 'boot', B=1000, data = aa)
+plot(cal34,
+     xlim=c(0,0.8),ylim=c(0,0.8),
+     xlab = "Predicted Probability",
+     ylab = "Observed Probability")
+
+library(readr)
+install.packages("ResourceSelection")
+library(ResourceSelection)
+
+ 
+aa$CIP234<-as.numeric(aa$CIP234)
+aa$CIP34<-as.numeric(aa$CIP34)
+str(aa)
+
+formula234 = as.formula(CIP234~ggo+Histology+Age+ILA)
+lgrfit234<-glm(formula234, family=binomial(link = logit), data=aa1)
+fit234<-lrm(formula234,data = aa, x=T,y=T)
+lgrfit234
+print(fit234)
+HL234<-hoslem.test(aa$CIP234,fitted(lgrfit234),g=10)
+HL234
+
+formula34 = as.formula(CIP34~Histology+ggo_right_bottom_lung+Age)
+lgrfit34<-glm(formula34, family=binomial(link = logit), data=aa1)
+fit34<-lrm(formula34,data = aa, x=T,y=T)
+lgrfit34
+print(fit34)
+HL34<-hoslem.test(aa$CIP34,fitted(lgrfit34),g=10)
+HL34
+
+
+nom234<-nomogram(fit234,
+              fun=function(x)1/(1+exp(-x)),
+              lp=F,
+              fun.at = c(0.05, 0.1,0.3,0.5,0.7,0.9),
+              funlabel = 'Risk')
+nom34<-nomogram(fit34,
+              fun=function(x)1/(1+exp(-x)),
+              lp=F,
+              fun.at = c(0.05, 0.1,0.3,0.5,0.7,0.9),
+              funlabel = 'Risk')

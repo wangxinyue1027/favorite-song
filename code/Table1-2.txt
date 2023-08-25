@@ -1,0 +1,78 @@
+install.packages("tableone")
+library(tableone)
+rm(list = ls())  
+setwd("C:/Users/86139/Desktop/R")
+getwd()
+aa<- read.csv('Itrainingset.csv')
+vali<- read.csv('validationset.csv')
+names(aa)
+names(vali)
+str(aa)
+str(vali)
+shapiro.test(aa$Age_years)
+shapiro.test(aa$fibrosis)
+shapiro.test(aa$fibrosis_left_lung)
+shapiro.test(aa$fibrosis_right_lung)
+myVars <- c("Age","AgeCAT","Sex", "PS", "Smoking", "Stage",  "Histology", "radiation", "ICI", "Treatment.mode","Number.of.ICI.cycles", "Best.tumor.response","Line.of.ICI.therapy","fibrosis","fibrosis_left_up_lung","fibrosis_left_bottom_lung","fibrosis_right_up_lung","fibrosis_right_middle_lung","fibrosis_right_bottom_lung","ggo","ggo_left_up_lung","ggo_left_bottom_lung","ggo_right_up_lung","ggo_right_middle_lung","ggo_right_bottom_lung","consolidation","consolidation_left_up_lung","consolidation_left_bottom_lung","consolidation_right_up_lung","consolidation_right_middle_lung","consolidation_right_bottom_lung","ILA","WBC","NEU","LYM","PLT","MON","AEC","Hb","CRP","ALP","LDH","ALB","NLR","Flobes","Globes","Clobes")
+catVars <- c("AgeCAT","Sex", "PS", "Smoking", "Stage",  "Histology", "radiation", "ICI", "Treatment.mode","Best.tumor.response","Line.of.ICI.therapy","PD.L1","Driver.mutations"，"ILA","Flobes","Globes","Clobes")
+nonvar <- c("Age","Number.of.ICI.cycles")
+
+table <- CreateTableOne(vars = myVars,
+                        factorVars = catVars,
+                        strata = "patch", 
+                        data = vali, addOverall = TRUE)
+table1<- print(table,
+               nonnormal = nonvar,
+               showAllLevels=TRUE, 
+               quote = FALSE, 
+               noSpaces = TRUE, 
+               printToggle = TRUE) 
+write.csv(table1, file = "table1.csv")
+
+table <- CreateTableOne(vars = myVars, 
+                        factorVars = catVars,
+                        strata = "CIP", 
+                        data = aa, addOverall = TRUE)
+table1<- print(table, 
+               nonnormal = nonvar,
+               showAllLevels=TRUE, 
+               quote = FALSE, 
+               noSpaces = TRUE, 
+               printToggle = TRUE) 
+write.csv(table1, file = "table2CIP.csv")
+
+table <- CreateTableOne(vars = myVars, 
+                        factorVars = catVars,
+                        strata = "CIP", 
+                        data = aa, addOverall = TRUE)
+table1<- print(table, 
+               nonnormal = nonvar,
+               showAllLevels=TRUE, 
+               quote = FALSE, 
+               noSpaces = TRUE, 
+               printToggle = TRUE) 
+write.csv(table1, file = "table2CIP.csv")
+
+table <- CreateTableOne(vars = myVars, 
+                        factorVars = catVars,
+                        strata = "CIP234", 
+                        data = aa, addOverall = TRUE)
+table1<- print(table, 
+               nonnormal = nonvar,
+               showAllLevels=TRUE, 
+               quote = FALSE, 
+               noSpaces = TRUE, 
+               printToggle = TRUE) 
+write.csv(table1, file = "table2CIP234.csv")
+
+table <- CreateTableOne(vars = myVars, 
+                        factorVars = catVars,
+                        strata = "CIP34", 
+                        data = aa, addOverall = TRUE)
+table1<- print(table, 
+               nonnormal = nonvar,
+               showAllLevels=TRUE, 
+               quote = FALSE, 
+               noSpaces = TRUE, 
+               printToggle = TRUE) 
+write.csv(table1, file = "table2CIP34.csv")
